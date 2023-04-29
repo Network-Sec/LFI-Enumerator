@@ -14,7 +14,7 @@ def is_file(url, path, response):
     status_code, _ = check_path(url, os.path.join(path, "."))
     return status_code != 200
 
-def enumerate_files_dirs(url, path, wordlist):
+def enumerate_files_dirs(url, path, wordlist, real_structure_set):
     custom_files = []
     structure = []
 
@@ -28,12 +28,11 @@ def enumerate_files_dirs(url, path, wordlist):
         if status_code == 200:
             structure.append(full_path)
 
-            if is_file(url, full_path, response):  # Checking if it's a file
-                with open(f"{basename}_readable_files.txt", "a") as readable_file:
-                    readable_file.write(f"{full_path}\n{response.text}\n\n")
+            if full_path not in real_structure_set:  # Check if the file is standard or custom
                 custom_files.append(full_path)
-            else:  # If it's a directory, perform recursive search
-                custom_files.extend(enumerate_files_dirs(url, full_path, wordlist))
+
+            if not is_file(url, full_path, response):  # If it's a directory, perform recursive search
+                custom_files.extend(enumerate_files_dirs(url, full_path, wordlist, real_structure_set))
 
     return custom_files, structure
 
@@ -42,18 +41,24 @@ parser = argparse.ArgumentParser(description="Webserver enumeration and deviatio
 parser.add_argument("url", help="URL to send GET requests")
 parser.add_argument("basename", help="Basename for the output files")
 parser.add_argument("wordlist", help="Wordlist file containing default Linux files and directories")
+parser.add_argument("real_structure_wordlist", help="Wordlist file containing the real structure of a Linux system")
 args = parser.parse_args()
 
 url = args.url
 basename = args.basename
 wordlist_file = args.wordlist
+real_structure_wordlist_file = args.real_structure_wordlist
 
 # Read wordlist file
 with open(wordlist_file, "r") as f:
     wordlist = [line.strip() for line in f]
 
+# Read real_structure_wordlist file and build a set
+with open(real_structure_wordlist_file, "r") as f:
+    real_structure_set = set(line.strip() for line in f)
+
 # Start recursive enumeration
-deviations, structure = enumerate_files_dirs(url, "", wordlist)
+deviations, structure = enumerate_files_dirs(url, "", wordlist, real_structure_set)
 
 # Save structure
 with open(f"{basename}_structure.txt", "w") as f:
