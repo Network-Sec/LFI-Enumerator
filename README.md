@@ -1,6 +1,10 @@
 # Warning
 This project is in early development and may not work yet as expected
 
+Doesn't look too bad ATM but I found that making the single-word wordlist manually, I can influence speed and precision a lot. E.g. I put the root dirs first, like /usr /home /etc ... and usually /home is the first directory it will recurse into, so after that I put a names list from seclists. Making this file efficient is win or lose. 
+
+We could try to make it parallel / async, but that's a pretty difficult logic because of recursion. 
+
 # LFI-Enumerator
 CTF LFI Enumerator that looks for interesting files, which aren't present on a default ubuntu server
 
