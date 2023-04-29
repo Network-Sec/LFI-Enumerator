@@ -17,7 +17,10 @@ def enumerate_files_dirs(url, path, wordlist):
     structure = []
 
     for item in wordlist:
-        full_path = os.path.join(path, item)
+        if path:
+            full_path = os.path.join(path, item)
+        else:
+            full_path = item
         status_code, response = check_path(url, full_path)
 
         if status_code == 200:
