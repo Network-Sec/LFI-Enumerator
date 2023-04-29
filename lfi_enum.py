@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import requests
 import os
 import argparse
@@ -7,6 +5,12 @@ import argparse
 def check_path(url, path):
     response = requests.get(url + path)
     return response.status_code, response
+
+def is_file(url, path, response):
+    if len(response.text) > 50:
+        return True
+    status_code, _ = check_path(url, os.path.join(path, "."))
+    return status_code != 200
 
 def enumerate_files_dirs(url, path, wordlist):
     custom_files = []
@@ -19,10 +23,9 @@ def enumerate_files_dirs(url, path, wordlist):
         if status_code == 200:
             structure.append(full_path)
 
-            if os.path.isfile(item):  # Checking if it's a file
-                if len(response.text) > 50:
-                    with open(f"{basename}_readable_files.txt", "a") as readable_file:
-                        readable_file.write(f"{full_path}\n{response.text}\n\n")
+            if is_file(url, full_path, response):  # Checking if it's a file
+                with open(f"{basename}_readable_files.txt", "a") as readable_file:
+                    readable_file.write(f"{full_path}\n{response.text}\n\n")
                 custom_files.append(full_path)
             else:  # If it's a directory, perform recursive search
                 custom_files.extend(enumerate_files_dirs(url, full_path, wordlist))
