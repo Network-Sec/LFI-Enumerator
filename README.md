@@ -1,7 +1,7 @@
 # LFI-Enumerator
 CTF LFI Enumerator that looks for interesting files, which aren't present on a default ubuntu server
 
-Output files containing the enumerated filesystem as well as other interesting info will be created instead of stdout.
+Will create output files containing the enumerated filesystem as well as other interesting info, instead of outputting to stdout.
 ##  Example Usage
 ```bash
 usage: lfi_enum.py [-h] url basename wordlist
