@@ -1,3 +1,6 @@
+# Warning
+This project is in early development and may not work yet as expected
+
 # LFI-Enumerator
 CTF LFI Enumerator that looks for interesting files, which aren't present on a default ubuntu server
 
