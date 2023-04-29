@@ -4,8 +4,18 @@ import requests
 import os
 import argparse
 
+DEBUG = True
+
 def check_path(url, path):
-    response = requests.get(url + path)
+    proxies = {}
+    if DEBUG:
+        proxies = {"http": "http://localhost:8080", "https": "http://localhost:8080"}
+
+    response = requests.get(url + path, proxies=proxies)
+
+    if DEBUG and response.status_code == 200:
+        print(response.request.url, response.status_code)
+    
     return response.status_code, response
 
 def is_file(url, path, response):
@@ -29,9 +39,13 @@ def enumerate_files_dirs(url, path, wordlist, real_structure_set):
             structure.append(full_path)
 
             if full_path not in real_structure_set:  # Check if the file is standard or custom
+                if DEBUG:
+                    print(full_path)
                 custom_files.append(full_path)
 
             if not is_file(url, full_path, response):  # If it's a directory, perform recursive search
+                if DEBUG:
+                    print("Recursing:", full_path)
                 custom_files.extend(enumerate_files_dirs(url, full_path, wordlist, real_structure_set))
 
     return custom_files, structure
